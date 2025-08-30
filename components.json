@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "@/ModernSubgridDropzone/styles/globals.scss",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/ModernSubgridDropzone/components",
+    "utils": "@/ModernSubgridDropzone/components/common/shadcn/utils",
+    "ui": "@/ModernSubgridDropzone/components/common/shadcn/ui",
+    "lib": "@/ModernSubgridDropzone/lib",
+    "hooks": "@/ModernSubgridDropzone/hooks"
+  },
+  "iconLibrary": "lucide"
+}
