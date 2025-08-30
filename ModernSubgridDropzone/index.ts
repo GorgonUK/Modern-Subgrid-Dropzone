@@ -2,6 +2,7 @@ import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import { Landing } from "./Landing/Landing";
 import * as React from "react";
 import "./styles/globals.scss"
+import { getEntityMetadata } from "./lib/dataverse";
 
 export class ModernSubgridDropzone implements ComponentFramework.ReactControl<IInputs, IOutputs> {
   private notifyOutputChanged!: () => void;
@@ -10,7 +11,8 @@ export class ModernSubgridDropzone implements ComponentFramework.ReactControl<II
     context: ComponentFramework.Context<IInputs>,
     notifyOutputChanged: () => void
   ): void {
-    console.log("Modern Subgrid Dropzone 0.1 Initialised")
+    console.log("Modern Subgrid Dropzone 0.2 Initialised")
+    //console.log(context)
     this.notifyOutputChanged = notifyOutputChanged;
   }
 

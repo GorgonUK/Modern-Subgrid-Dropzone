@@ -1,11 +1,15 @@
 import * as React from 'react';
-import { UploadIcon } from 'lucide-react';
+import { FileIcon, Trash2Icon, UploadIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { DropEvent, DropzoneOptions, FileRejection } from 'react-dropzone';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '../shadcn/ui/button';
 import { cn } from '../shadcn/lib/utils';
+import {
+  getFileTypeIconProps,
+} from "@uifabric/file-type-icons";
+import { getFileExtension } from './utils';
 
 type DropzoneContextType = {
   src?: File[];
@@ -149,15 +153,8 @@ export const DropzoneContent = ({
       <div className="flex size-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
         <UploadIcon size={16} />
       </div>
-      <p className="my-2 w-full truncate font-medium text-sm">
-        {src.length > maxLabelItems
-          ? `${formatList(
-              src.slice(0, maxLabelItems).map((file) => file.name)
-            )} and ${src.length - maxLabelItems} more`
-          : formatList(src.map((file) => file.name))}
-      </p>
       <p className="w-full text-wrap text-muted-foreground text-xs">
-        Drag and drop or click to replace
+        Click here or drag and drop to upload
       </p>
     </div>
   );
@@ -184,7 +181,7 @@ export const DropzoneEmptyState = ({
 
   let caption = '';
 
- 
+
 
   if (minSize && maxSize) {
     caption += ` between ${renderBytes(minSize)} and ${renderBytes(maxSize)}`;
@@ -211,3 +208,49 @@ export const DropzoneEmptyState = ({
     </div>
   );
 };
+
+export function DropzoneFileList({
+  files,
+  onRemove,
+  className,
+}: {
+  files: File[];
+  onRemove: (index: number) => void;
+  className?: string;
+}) {
+  if (!files?.length) return null;
+  return (
+    <ul className={cn("mt-3 flex flex-col gap-2", className)}>
+      {files.map((file, idx) => (
+        <li key={`${file.name}-${idx}`} className="justify-center rounded-md bg-muted/40 px-4 py-2 flex flex-col gap-3">
+          <div className="flex justify-between">
+            <div className="flex min-w-0 items-center gap-2 font-bold">
+              
+              <p className="truncate text-sm font-bold">{file.name}</p>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                aria-label={`Remove ${file.name}`}
+                onClick={() => onRemove(idx)}
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </div>
+
+
+          </div>
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
+              {`${(file.size / (1024 * 1024)).toFixed(2)} MB`}
+            </p>
+          </div>
+
+        </li>
+      ))
+      }
+    </ul >
+  );
+}

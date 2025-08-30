@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manifest>
-  <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.28" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
+  <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.32" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
     <external-service-usage enabled="false" />
     <data-set name="LeaveEmpty" display-name-key="Leave Empty" />
     <resources>
@@ -9,8 +9,8 @@
       <platform-library name="Fluent" version="9.46.2" />
     </resources>
     <feature-usage>
-      <uses-feature name="WebAPI" required="false" />
-      <uses-feature name="WebAPI.retrieveMultipleRecords" required="false" />
+      <uses-feature name="WebAPI" required="true" />
+      <uses-feature name="Utility" required="true" />
     </feature-usage>
   </control>
 </manifest>

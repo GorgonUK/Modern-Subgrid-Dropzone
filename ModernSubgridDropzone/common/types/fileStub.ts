@@ -1,0 +1,1 @@
+export type FileStub = File & { fileId: string; createdon?: string };

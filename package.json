@@ -16,7 +16,7 @@
     "@fluentui/react-components": "9.46.2",
     "@heroicons/react": "^2.2.0",
     "@radix-ui/react-slot": "^1.2.3",
-    "@types/xrm": "^9.0.81",
+    "@types/xrm": "^9.0.87",
     "@uifabric/file-type-icons": "^7.10.11",
     "class-variance-authority": "^0.7.1",
     "lucide-react": "^0.507.0",
@@ -24,6 +24,7 @@
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "react-dropzone": "^14.3.8",
+    "react-file-icon": "^1.6.0",
     "styled-components": "^6.1.18",
     "tailwind-merge": "^3.2.0",
     "tw-animate-css": "^1.2.9"
