@@ -1,33 +1,113 @@
-# Modern Chart PCF
+### Modern Subgrid Dropzone (PCF)
 
-- **Optimized for Canvas and Model-Driven Apps**
-- **Responsive**
+Upload and manage related files from a model-driven form using a clean, modern UI. This PCF control lets users drag and drop files to a child table via a 1:N relationship, shows upload progress, and allows deletions.
 
-This Power Apps PCF control renders dynamic, responsive charts using Recharts and ShadCN styling. It supports multiple chart types—Bar, Line, Area, and Pie—and includes configuration options for series, category field, text color, chart height, header visibility, locale formatting, and palette customization. Designed for both Model-driven and Canvas apps, it intelligently formats numeric and currency values based on the environment.
+---
 
-![alt text](image.png)
+## Features
+- Drag-and-drop or click-to-upload
+- Upload progress indicator
+- Sortable/filterable file list
+- Delete selected files
+- Small bundle size (no heavy icon libraries)
 
-## Input Parameters
+---
 
-| Input               | Description                                               | Values                                              |
-|---------------------|-----------------------------------------------------------|-----------------------------------------------------|
-| `chartTitle`        | Sets the main title of the chart                          | Custom text string                                  |
-| `chartDescription`  | Adds a description below the chart title                  | Custom text string                                  |
-| `categoryField`     | Column name used for the X-axis or category labels        | Column name (string)                                |
-| `seriesFields`      | Comma-separated list of columns used as data series       | e.g., `new_revenue,new_expenses,profit`                     |
-| `chartHeight`       | Height of the chart in pixels                             | Numeric string (e.g., `300`)                        |
-| `displayChartHeader`| Whether to show the chart title and description           | `true`, `false`                                     |
-| `displayHeaderTotals`| Whether to display the total value for each series       | `true`, `false`                                     |
-| `enableSmoothBars`  | Applies smoothing (e.g., rounded corners or curves)       | `true`, `false`                                     |
-| `textColor`         | Hex value to override the default text color              | e.g., `#000000`, `#ff5733`                          |
-| `chartType`         | Defines the type of chart to render                       | `Bar`, `Line`, `Area`, `Pie`                        |
-| `localeOverride`    | Overrides the locale used for number and currency formats | e.g., `en-GB`, `fr-FR`, `de-DE`                     |
-| `paletteOverride`   | Comma-separated hex values for custom series colours      | e.g., `#2563eb,#60a5fa,#22d3ee,#4ade80`             |
-| `isCanvas`          | Used internally to detect Canvas App mode (hidden input)  | `true`, `false` (default: `false`)                  |
+## Input parameters (ControlManifest)
 
-# Example config setup (Canvas App)
+Configure these inputs when adding the control to a form:
 
-![alt text](image-1.png)
+- **relationshipSchemaName**: Schema name of the 1:N relationship from the current table (parent) to the file table (child). Example: `new_document_Case_new_case`.
+- **fileFieldLogicalName**: Logical name of the File column on the child table. Example: `new_file`.
+- **fileSizeFieldLogicalName**: Optional logical name of a Text column on the child table that stores file size in bytes. Example: `new_filesize`.
+- **fileNameFieldLogicalName**: Logical name of the Text column on the child table used as the file name. Example: `new_filename`.
 
+Notes:
+- The control manifest includes a placeholder dataset named `LeaveEmpty`; you do not need to bind it to data.
+- Ensure your parameter names match the manifest exactly (case-sensitive in code).
 
-For any issues or feedback, please use the "Issues" tab at the top of the page.
+---
+
+## Example configuration values
+- relationshipSchemaName: `new_document_Case_new_case`
+- fileFieldLogicalName: `new_file`
+- fileSizeFieldLogicalName: `new_filesize`
+- fileNameFieldLogicalName: `new_filename`
+
+---
+
+## How to find the relationship schema name
+1. In the Maker portal, open the solution that contains your parent table.
+2. Open the parent table, go to Relationships → 1:N.
+3. Find the relationship pointing to your file table and copy its Schema Name (not the Display Name).
+
+---
+
+## Prerequisites
+- Node.js 18+ (LTS recommended)
+- Power Platform CLI (`pac`)
+- A Dataverse environment where you have rights to import solutions and add controls to forms
+
+---
+
+## Install and build
+```bash
+# from repository root
+npm ci
+npm run build
+```
+
+Useful scripts:
+- `npm run start`: run the PCF test harness
+- `npm run rebuild`: clean + build
+- `npm run refreshTypes`: regenerate TypeScript types after changing the manifest
+
+---
+
+## Deploy to Dataverse
+
+Option A — push directly during development
+```bash
+pac auth create --url https://yourorg.crm.dynamics.com
+pac pcf push
+```
+This creates/updates a temporary solution in your environment with the control for quick testing.
+
+Option B — import a solution zip
+1. Build the control: `npm run build`.
+2. Build the Visual Studio solution located under `Solution/ModernSubgridDropzone` to produce a zip (e.g., `Solution/ModernSubgridDropzone/bin/Debug/ModernSubgridDropzone.zip`).
+3. Import the zip into your environment via Solutions → Import.
+
+---
+
+## Add the control to a form
+1. Open the model-driven form where you want the control.
+2. Insert a section or placeholder and add the control `guk_GorgonUK.ModernSubgridDropzone`.
+3. In the control’s properties, set the inputs listed above.
+4. Save and publish the form and app.
+
+Permissions required for end users:
+- Create/Read/Write on the child (file) table
+- Append/Append To between the parent and child tables
+
+---
+
+## Defaults and behavior
+- It is strongly recommended to set all inputs explicitly. If an input is omitted, the control may attempt to use a code default. Configure `fileFieldLogicalName` and `fileNameFieldLogicalName` to avoid ambiguity.
+- If `fileSizeFieldLogicalName` is provided, the control writes the file size in bytes.
+- Upload size limit is currently set to 128 MB in code. Adjust in `Landing/Landing.tsx` if needed.
+
+---
+
+## Troubleshooting
+- "Property RelationshipName is required" or "Expected non-empty string": one or more inputs are empty or mismatched. Ensure `relationshipSchemaName` is set and valid. Verify column logical names exist on the child table.
+- No files appear after upload: verify the relationship connects the child records to the current parent record and that users have security permissions.
+- Types don’t match after editing the manifest: run `npm run refreshTypes` and re-build.
+
+---
+
+## Tech stack
+- React 16.14
+- ShadCN-inspired UI components
+- React Dropzone for file picking/drag-and-drop
+- Dataverse Web API for create/upload/delete operations

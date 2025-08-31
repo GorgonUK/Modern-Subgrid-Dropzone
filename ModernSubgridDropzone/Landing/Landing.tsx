@@ -1,7 +1,5 @@
 import * as React from "react";
 import { IInputs } from "../generated/ManifestTypes";
-import { Container } from "./styles";
-import { initializeFileTypeIcons } from "@uifabric/file-type-icons";
 import { Dropzone, DropzoneEmptyState, DropzoneContent, DropzoneFileList } from "../components/common/Dropzone/Dropzone";
 import { createRelatedFile, deleteFile, getEntityMetadata, getFiles } from "../lib/dataverse";
 import { getTenderDocumentRelationship, getStringParameter, readFileAsBase64 } from "../lib/utils";
@@ -23,7 +21,6 @@ interface LandingState {
 export class Landing extends React.Component<LandingProps, LandingState> {
   constructor(props: LandingProps) {
     super(props);
-    initializeFileTypeIcons();
   }
 
   state: LandingState = {
@@ -40,7 +37,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
   }
 
   async componentDidMount() {
-    const relationshipName = getStringParameter(this.props.context, "RelationshipName");
+    const relationshipName = getStringParameter(this.props.context, "relationshipSchemaName");
     const entityMetadata = await getTenderDocumentRelationship(
       this.props.context,
       relationshipName
@@ -55,9 +52,9 @@ export class Landing extends React.Component<LandingProps, LandingState> {
   handleDrop = async (acceptedFiles: File[]) => {
     const relationshipMetadata = this.state.relationshipMetadata ?? null;
     const context = this.props.context;
-    const fileFieldLogicalName = getStringParameter(context, "FileFieldLogicalName");
-    const fileSizeFieldLogicalName = getStringParameter(context, "FileSizeFieldLogicalName");
-    const fileNameFieldLogicalName = getStringParameter(context, "FileNameFieldLogicalName");
+    const fileFieldLogicalName = getStringParameter(context, "fileFieldLogicalName");
+    const fileSizeFieldLogicalName = getStringParameter(context, "fileSizeFieldLogicalName");
+    const fileNameFieldLogicalName = getStringParameter(context, "fileNameFieldLogicalName");
     // Optimistically add new files to the list while uploading
     const existing = this.state.files || [];
     this.setState({ files: [...existing, ...acceptedFiles] });
@@ -79,8 +76,8 @@ export class Landing extends React.Component<LandingProps, LandingState> {
   };
 
   fetchFiles = async () => {
-    const fileSizeFieldLogicalName = getStringParameter(this.props.context, "FileSizeFieldLogicalName");
-    const fileNameFieldLogicalName = getStringParameter(this.props.context, "FileNameFieldLogicalName");
+    const fileSizeFieldLogicalName = getStringParameter(this.props.context, "fileSizeFieldLogicalName");
+    const fileNameFieldLogicalName = getStringParameter(this.props.context, "fileNameFieldLogicalName");
     const result = await getFiles(this.props.context, this.state.relationshipMetadata ?? null, fileSizeFieldLogicalName, fileNameFieldLogicalName);
     if ("entities" in result) {
       const files: FileStub[] = result.entities.map((e: any) => {
@@ -107,7 +104,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
     const { context } = this.props;
 
     return (
-      <Container>
+      <div className="w-full h-full">
         <Dropzone
           src={this.state.files}
           onDrop={(acceptedFiles) => this.handleDrop(acceptedFiles)}
@@ -169,7 +166,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
           }}
           deletingIds={this.state.deletingIds}
         />
-      </Container>
+      </div>
     );
   }
 }

@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { FileIcon, Trash2Icon, CloudUploadIcon, UploadIcon, ArrowUpDown, Trash2 } from 'lucide-react';
+// Replaced external icons with local lightweight SVG components
+import { Trash2Icon } from "../icons/Trash2Icon";
+import { CloudUploadIcon } from "../icons/CloudUploadIcon";
+import { UploadIcon } from "../icons/UploadIcon";
+import { ArrowUpDown } from "../icons/ArrowUpDown";
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { DropEvent, DropzoneOptions, FileRejection } from 'react-dropzone';
@@ -20,6 +24,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+// icons are now imported from shared directory
+
 type DropzoneContextType = {
   src?: File[];
   accept?: DropzoneOptions['accept'];
@@ -39,21 +45,6 @@ const renderBytes = (bytes: number) => {
   }
 
   return `${size.toFixed(2)}${units[unitIndex]}`;
-};
-
-const formatList = (items: string[]) => {
-  if (items.length === 0) {
-    return '';
-  }
-  if (items.length === 1) {
-    return items[0];
-  }
-  if (items.length === 2) {
-    return `${items[0]} and ${items[1]}`;
-  }
-  const allButLast = items.slice(0, -1).join(', ');
-  const last = items[items.length - 1];
-  return `${allButLast}, and ${last}`;
 };
 
 const DropzoneContext = createContext<DropzoneContextType | undefined>(
@@ -93,7 +84,7 @@ export const Dropzone = ({
     disabled,
     onDrop: (acceptedFiles, fileRejections, event) => {
       if (fileRejections.length > 0) {
-        const firstMessage = fileRejections.at(0)?.errors.at(0)?.message;
+        const firstMessage = fileRejections[0]?.errors?.[0]?.message;
         if (firstMessage) onError?.(new Error(firstMessage));
         // Do not return; proceed with accepted files
       }

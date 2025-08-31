@@ -131,9 +131,9 @@ export async function getFiles(
       console.error("Error fetching related files:", error);
       return { success: false, message: `Failed to retrieve files: ${error.message}` };
     }
-  }
+}
   
-  export async function deleteFile(
+export async function deleteFile(
     context: ComponentFramework.Context<IInputs>,
     relationshipMetadata: RelationshipMetadata | null,
     fileId: string
@@ -163,5 +163,5 @@ export async function getFiles(
       console.error("deleteFile failed:", err);
       return { success: false, message: `Failed to delete file${detail ? `: ${detail}` : ""}` };
     }
-  }
+}
   
