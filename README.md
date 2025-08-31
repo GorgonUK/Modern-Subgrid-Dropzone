@@ -14,6 +14,15 @@ Upload and manage related files from a model-driven form using a clean, modern U
 
 ---
 
+## Installation
+1. If you just installed this component then click on "Get more components" and add it to the form. 
+2. Drag and drop the component onto the form.
+<img width="1639" height="858" alt="image" src="https://github.com/user-attachments/assets/1e765bf1-ba45-4cfa-bf39-2d87f27585d2" />
+3. In the right hand pane, scroll to the bottom and open up "components". Click on the 3 dots on the side of "modern Subgrid Dropzone"
+<img width="270" height="196" alt="image" src="https://github.com/user-attachments/assets/e7d055e0-f26b-4a52-bb4e-a345fb517e13" />
+4. The "Table" and "View" fields do nto affect the control. Make sure the controls listed below are configured correctly.
+
+
 ## Input parameters (ControlManifest)
 
 Configure these inputs when adding the control to a form:
@@ -22,6 +31,10 @@ Configure these inputs when adding the control to a form:
 - **fileFieldLogicalName**: Logical name of the File column on the child table. Example: `new_file`.
 - **fileSizeFieldLogicalName**: Optional logical name of a Text column on the child table that stores file size in bytes. Example: `new_filesize`.
 - **fileNameFieldLogicalName**: Logical name of the Text column on the child table used as the file name. Example: `new_filename`.
+
+Example:
+<img width="1452" height="902" alt="image" src="https://github.com/user-attachments/assets/c2f4e083-5f20-4d25-8032-623d859d550b" />
+
 
 Notes:
 - The control manifest includes a placeholder dataset named `LeaveEmpty`; you do not need to bind it to data.
@@ -112,3 +125,5 @@ Permissions required for end users:
 - ShadCN-inspired UI components
 - React Dropzone for file picking/drag-and-drop
 - Dataverse Web API for create/upload/delete operations
+
+If you experience and issue, make sure to open a new Github issue 
