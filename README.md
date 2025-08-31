@@ -1,5 +1,6 @@
 ### Modern Subgrid Dropzone (PCF)
 <img width="932" height="515" alt="image" src="https://github.com/user-attachments/assets/6ffe1ee7-fb65-46c0-93b4-67c23a4668e2" />
+<img width="937" height="773" alt="image" src="https://github.com/user-attachments/assets/535a96fe-35df-41db-bc82-7fd185e8008c" />
 
 
 Upload and manage related files from a model-driven form using a clean, modern UI. This PCF control lets users drag and drop files to a child table via a 1:N relationship, shows upload progress, and allows deletions.
