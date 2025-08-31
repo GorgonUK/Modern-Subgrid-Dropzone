@@ -44,7 +44,7 @@ export function getEnumParameter<T extends { [key: string]: string | number }>(
 }
 
 // Context Helpers
-export async function getTenderDocumentRelationship(
+export async function getDocumentRelationship(
   context: ComponentFramework.Context<IInputs>,
   relationshipName: string
 ): Promise<RelationshipMetadata | null> {
@@ -57,7 +57,6 @@ export async function getTenderDocumentRelationship(
       (rel as RelationshipWrapper).relationshipMetadata?.SchemaName ===
     relationshipName
   ) as RelationshipWrapper | undefined;
-
   return match?.relationshipMetadata ?? null;
 }
 

@@ -21,6 +21,8 @@ Configure these inputs when adding the control to a form:
 - **fileFieldLogicalName**: Logical name of the File column on the child table. Example: `new_file`.
 - **fileSizeFieldLogicalName**: Optional logical name of a Text column on the child table that stores file size in bytes. Example: `new_filesize`.
 - **fileNameFieldLogicalName**: Logical name of the Text column on the child table used as the file name. Example: `new_filename`.
+- **maxFiles**: Maximum number of files selectable per upload (whole number). Example: `100`.
+- **maxUploadSizeMB**: Maximum single file size in megabytes (whole number). Example: `128`.
 
 Notes:
 - The control manifest includes a placeholder dataset named `LeaveEmpty`; you do not need to bind it to data.
@@ -33,6 +35,8 @@ Notes:
 - fileFieldLogicalName: `new_file`
 - fileSizeFieldLogicalName: `new_filesize`
 - fileNameFieldLogicalName: `new_filename`
+- maxFiles: `100`
+- maxUploadSizeMB: `128`
 
 ---
 
@@ -95,7 +99,8 @@ Permissions required for end users:
 ## Defaults and behavior
 - It is strongly recommended to set all inputs explicitly. If an input is omitted, the control may attempt to use a code default. Configure `fileFieldLogicalName` and `fileNameFieldLogicalName` to avoid ambiguity.
 - If `fileSizeFieldLogicalName` is provided, the control writes the file size in bytes.
-- Upload size limit is currently set to 128 MB in code. Adjust in `Landing/Landing.tsx` if needed.
+- If `maxFiles` is not provided or is 0, the default is 100.
+- If `maxUploadSizeMB` is not provided or is 0, the default is 128 MB.
 
 ---
 

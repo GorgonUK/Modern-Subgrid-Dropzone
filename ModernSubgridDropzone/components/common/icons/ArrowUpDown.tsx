@@ -16,9 +16,10 @@ export function ArrowUpDown({ size = 24, className, ...props }: IconProps) {
       className={className}
       {...props}
     >
-      <path d="M12 3v18" />
-      <path d="M8 7l4-4 4 4" />
-      <path d="M8 17l4 4 4-4" />
+      <path d="m3 16 4 4 4-4" />
+      <path d="M7 20V4" />
+      <path d="m21 8-4-4-4 4" />
+      <path d="M17 4v16" />
     </svg>
   );
 }

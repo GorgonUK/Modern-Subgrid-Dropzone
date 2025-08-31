@@ -2,7 +2,7 @@ import * as React from "react";
 import { IInputs } from "../generated/ManifestTypes";
 import { Dropzone, DropzoneEmptyState, DropzoneContent, DropzoneFileList } from "../components/common/Dropzone/Dropzone";
 import { createRelatedFile, deleteFile, getEntityMetadata, getFiles } from "../lib/dataverse";
-import { getTenderDocumentRelationship, getStringParameter, readFileAsBase64 } from "../lib/utils";
+import { getDocumentRelationship, getStringParameter, getNumberParameter, readFileAsBase64 } from "../lib/utils";
 import { RelationshipMetadata } from "../common/types/relationship";
 import { FileStub } from "../common/types/fileStub";
 
@@ -28,26 +28,28 @@ export class Landing extends React.Component<LandingProps, LandingState> {
     uploadProgress: {}
   };
 
-  getFileExtension(filename?: string): string {
-    if (!filename) {
-      return "folder";
-    }
-    const extension = filename.split(".").pop()?.toLowerCase();
-    return extension ? extension : "txt";
-  }
-
   async componentDidMount() {
     const relationshipName = getStringParameter(this.props.context, "relationshipSchemaName");
-    const entityMetadata = await getTenderDocumentRelationship(
+    const baseEntityMetadata = await getDocumentRelationship(
       this.props.context,
       relationshipName
     );
-
-    this.setState({ relationshipMetadata: entityMetadata });
-    this.fetchFiles();
+    if (!baseEntityMetadata) {
+      return
+    }
+    const childEntity = baseEntityMetadata?.ReferencingEntity;
+    const childEntityMetadata = await getEntityMetadata(this.props.context, childEntity ?? "");
+    // get the child enetity plural logcal name
+    const entitySetName = childEntityMetadata?.EntitySetName;
+    const updatedMetadata: RelationshipMetadata = {
+      ...baseEntityMetadata,
+      ReferencingEntityPlural: entitySetName
+    } as RelationshipMetadata;
+    this.setState({ relationshipMetadata: updatedMetadata });
+    await this.fetchFiles();
   }
-  componentDidUpdate() {}
-  componentWillUnmount() {}
+  componentDidUpdate() { }
+  componentWillUnmount() { }
 
   handleDrop = async (acceptedFiles: File[]) => {
     const relationshipMetadata = this.state.relationshipMetadata ?? null;
@@ -78,12 +80,14 @@ export class Landing extends React.Component<LandingProps, LandingState> {
   fetchFiles = async () => {
     const fileSizeFieldLogicalName = getStringParameter(this.props.context, "fileSizeFieldLogicalName");
     const fileNameFieldLogicalName = getStringParameter(this.props.context, "fileNameFieldLogicalName");
-    const result = await getFiles(this.props.context, this.state.relationshipMetadata ?? null, fileSizeFieldLogicalName, fileNameFieldLogicalName);
+    const entity = this.state.relationshipMetadata?.ReferencingEntity; // child entity
+    const entityId = `${entity}id`;
+    const result = await getFiles(this.props.context, this.state.relationshipMetadata!, fileSizeFieldLogicalName, fileNameFieldLogicalName);
     if ("entities" in result) {
       const files: FileStub[] = result.entities.map((e: any) => {
         const nameKey = fileNameFieldLogicalName;
         const f = new File([new Blob([])], e[nameKey], { type: "application/octet-stream" }) as FileStub;
-        f.fileId = e.gk_tenderdocumentid;
+        f.fileId = e[entityId];
         f.createdon = e.createdon;
         // populate size from configured size field if present
         const sizeText = e[fileSizeFieldLogicalName];
@@ -101,41 +105,22 @@ export class Landing extends React.Component<LandingProps, LandingState> {
 
 
   render() {
-    const { context } = this.props;
-
     return (
       <div className="w-full h-full">
         <Dropzone
           src={this.state.files}
           onDrop={(acceptedFiles) => this.handleDrop(acceptedFiles)}
           onError={console.error}
-          maxFiles={100}
-          maxSize={131072 * 1024} // 128MB
-          accept={{
-            // PDF
-            "application/pdf": [".pdf"],
-
-            // Word (modern + legacy)
-            "application/msword": [".doc"],
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-
-            // Excel (modern + legacy)
-            "application/vnd.ms-excel": [".xls"],
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
-
-            // PowerPoint (modern + legacy)
-            "application/vnd.ms-powerpoint": [".ppt"],
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
-
-            // Text formats (common in RFPs/exports)
-            "text/plain": [".txt"],
-            "application/rtf": [".rtf"],
-
-            // OpenDocument formats (common in enterprise/public sector)
-            "application/vnd.oasis.opendocument.text": [".odt"],
-            "application/vnd.oasis.opendocument.spreadsheet": [".ods"],
-            "application/vnd.oasis.opendocument.presentation": [".odp"]
-          }}
+          maxFiles={(() => {
+            const v = getNumberParameter(this.props.context, "maxFiles");
+            return v > 0 ? v : 100;
+          })()}
+          maxSize={(() => {
+            const mb = getNumberParameter(this.props.context, "maxUploadSizeMB");
+            const bytes = mb > 0 ? mb * 1024 * 1024 : 131072 * 1024; // default 128MB
+            return bytes;
+          })()}
+          
         >
           <DropzoneEmptyState />
           <DropzoneContent />

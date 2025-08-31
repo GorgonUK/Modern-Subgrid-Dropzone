@@ -8,6 +8,7 @@ export interface RelationshipWrapper {
     ReferencedEntityNavigationPropertyName: string;
     ReferencingAttribute: string;
     ReferencingEntity: string;
+    ReferencingEntityPlural?: string;
     ReferencingEntityNavigationPropertyName: string;
     SchemaName: string;
   }

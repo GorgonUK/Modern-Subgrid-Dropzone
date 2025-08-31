@@ -342,7 +342,7 @@ export function DropzoneFileList({
 
   return (
     <div className={cn("mt-3 flex flex-col gap-2", className)}>
-      <div className="flex items-center py-2 px-2 min-w-max justify-between">
+      <div className="flex items-center py-2 px-0 min-w-max justify-between">
         <Input
           placeholder="Filter by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}

@@ -11,7 +11,7 @@ export class ModernSubgridDropzone implements ComponentFramework.ReactControl<II
     context: ComponentFramework.Context<IInputs>,
     notifyOutputChanged: () => void
   ): void {
-    console.log("Modern Subgrid Dropzone 0.4 Initialised")
+    console.log("Modern Subgrid Dropzone 0.4.1 Initialised")
     //console.log(context)
     this.notifyOutputChanged = notifyOutputChanged;
   }

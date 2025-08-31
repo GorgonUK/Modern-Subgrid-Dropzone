@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manifest>
-  <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.50" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
+  <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.53" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
     <data-set name="LeaveEmpty" display-name-key="Leave Empty" />
     <property name="relationshipSchemaName" display-name-key="Relationship Name" description-key="Schema name of the 1:N relationship" of-type="SingleLine.Text" usage="input" required="false" />
     <property name="fileFieldLogicalName" display-name-key="File Field Logical Name" description-key="Logical name of the file column on the child entity" of-type="SingleLine.Text" usage="input" required="false" />
     <property name="fileSizeFieldLogicalName" display-name-key="File Size Field Logical Name" description-key="Logical name of the text column storing file size in bytes" of-type="SingleLine.Text" usage="input" required="false" />
     <property name="fileNameFieldLogicalName" display-name-key="File Name Field Logical Name" description-key="Logical name of the text column storing the file name" of-type="SingleLine.Text" usage="input" required="false" />
+    <property name="maxFiles" display-name-key="Max Files" description-key="Maximum number of files selectable per upload" of-type="Whole.None" usage="input" required="false" />
+    <property name="maxUploadSizeMB" display-name-key="Max Upload Size (MB)" description-key="Maximum single file size in MB" of-type="Whole.None" usage="input" required="false" />
     <resources>
       <code path="index.ts" order="1" />
       <platform-library name="React" version="16.14.0" />
