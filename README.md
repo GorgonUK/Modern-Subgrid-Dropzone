@@ -1,5 +1,6 @@
 ### Modern Subgrid Dropzone (PCF)
-<img width="420" height="466" alt="image" src="https://github.com/user-attachments/assets/39da0f8a-b5c5-4265-a51e-f5f62e73f7a4" />
+<img width="932" height="515" alt="image" src="https://github.com/user-attachments/assets/6ffe1ee7-fb65-46c0-93b4-67c23a4668e2" />
+
 
 Upload and manage related files from a model-driven form using a clean, modern UI. This PCF control lets users drag and drop files to a child table via a 1:N relationship, shows upload progress, and allows deletions.
 
@@ -17,9 +18,9 @@ Upload and manage related files from a model-driven form using a clean, modern U
 ## Installation
 1. If you just installed this component then click on "Get more components" and add it to the form. 
 2. Drag and drop the component onto the form.
-<img width="1639" height="858" alt="image" src="https://github.com/user-attachments/assets/1e765bf1-ba45-4cfa-bf39-2d87f27585d2" />
 3. In the right hand pane, scroll to the bottom and open up "components". Click on the 3 dots on the side of "modern Subgrid Dropzone"
 <img width="270" height="196" alt="image" src="https://github.com/user-attachments/assets/e7d055e0-f26b-4a52-bb4e-a345fb517e13" />
+
 4. The "Table" and "View" fields do nto affect the control. Make sure the controls listed below are configured correctly.
 
 
@@ -35,7 +36,7 @@ Configure these inputs when adding the control to a form:
 - **maxUploadSizeMB**: Maximum single file size in megabytes (whole number). Example: `128`.
 
 Example:
-<img width="1452" height="902" alt="image" src="https://github.com/user-attachments/assets/c2f4e083-5f20-4d25-8032-623d859d550b" />
+<img width="1912" height="901" alt="image" src="https://github.com/user-attachments/assets/eabfb221-bdf6-46dc-af55-54bad2416a68" />
 
 
 Notes:
