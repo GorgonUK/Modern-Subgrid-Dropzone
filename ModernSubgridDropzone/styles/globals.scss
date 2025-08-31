@@ -19,4 +19,49 @@
       --chart-5: 340 75% 55%;
     }
   }
+
+/* Simple indeterminate progress animation */
+@keyframes msd-progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(-25%); }
+  100% { transform: translateX(100%); }
+}
+
+.msd-progress-indicator-indeterminate {
+  width: 50%;
+  animation: msd-progress-indeterminate 1.2s ease-in-out infinite;
+}
+
+/* Deleting state animation: subtle pulsing and reduced opacity */
+@keyframes msd-deleting-pulse {
+  0% { background-color: #fff3f3; }
+  50% { background-color: #ffe3e3; }
+  100% { background-color: #fff3f3; }
+}
+
+.msd-deleting {
+  animation: msd-deleting-pulse 1s ease-in-out infinite;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Uploading row background fill based on progress */
+@keyframes msd-uploading-sheen {
+  0% { background-position-x: 0%; }
+  100% { background-position-x: 200%; }
+}
+
+/* Determinate: use a linear-gradient with a CSS var percentage */
+.msd-uploading {
+  position: relative;
+  background: linear-gradient(90deg, rgba(34,197,94,0.25) var(--msd-progress, 0%), transparent 0%);
+}
+
+/* Indeterminate: animated subtle sheen */
+.msd-uploading-indeterminate {
+  position: relative;
+  background: linear-gradient(90deg, rgba(34,197,94,0.2) 25%, rgba(34,197,94,0.05) 50%, rgba(34,197,94,0.2) 75%);
+  background-size: 200% 100%;
+  animation: msd-uploading-sheen 1.2s linear infinite;
+}
   

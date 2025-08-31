@@ -16,7 +16,11 @@ export async function getEntityMetadata(
 export async function createRelatedFile(
     context: ComponentFramework.Context<IInputs>,
     relationshipMetadata: RelationshipMetadata | null,
-    file: File
+    file: File,
+    onProgress?: (percent: number) => void,
+    fileFieldLogicalName?: string,
+    fileSizeFieldLogicalName?: string,
+    fileNameFieldLogicalName?: string
 ) {
     if (!relationshipMetadata) {
         return { success: false, message: "Relationship metadata not found. Double check PCF parameters." };
@@ -25,15 +29,19 @@ export async function createRelatedFile(
     const entity = relationshipMetadata.ReferencingEntity;
     const entityId = (context as any).page.entityId;
 
-    const record = {
-        "gk_name": file.name,
+    const record: Record<string, any> = {
         [`${relationshipMetadata.ReferencingEntityNavigationPropertyName}@odata.bind`]: `/${relationshipMetadata.ReferencedEntity}s(${entityId})`
     };
+    record[fileNameFieldLogicalName || "gk_name"] = file.name;
+    if (fileSizeFieldLogicalName) {
+        record[fileSizeFieldLogicalName] = String(file.size);
+    }
 
     try {
         const result = await context.webAPI.createRecord(entity, record);
         console.log("Result:", result);
-        await uploadFile(context, entity, result.id, "gk_tenderdocument", file);
+        const fileColumn = fileFieldLogicalName || "gk_tenderdocument";
+        await uploadFile(context, entity, result.id, fileColumn, file, onProgress);
         return { success: true, message: "Note created successfully", fileId: result.id };
     } catch (error) {
         console.error("Error creating note:", error);
@@ -46,22 +54,45 @@ export async function uploadFile(
     entityLogicalName: string,
     recordId: string,
     fileColumn: string,
-    file: File
+    file: File,
+    onProgress?: (percent: number) => void
 ): Promise<{ success: boolean; message: string }> {
     try {
-        const arrayBuffer = await file.arrayBuffer();
         const entitySetName = `${entityLogicalName.toLowerCase()}s`;
         const uploadUrl = `${(context as any).page.getClientUrl()}/api/data/v9.0/${entitySetName}(${recordId})/${fileColumn}`;
 
-        await fetch(uploadUrl, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/octet-stream",
-                "OData-MaxVersion": "4.0",
-                "OData-Version": "4.0",
-                // Authorization header is not needed in PCF
-            },
-            body: arrayBuffer
+        await new Promise<void>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("PATCH", uploadUrl);
+            xhr.setRequestHeader("Content-Type", "application/octet-stream");
+            xhr.setRequestHeader("OData-MaxVersion", "4.0");
+            xhr.setRequestHeader("OData-Version", "4.0");
+            // Ensure the file keeps its original name in the Dataverse file column
+            try {
+                xhr.setRequestHeader("x-ms-file-name", file.name);
+            } catch {
+                // ignore header set errors
+            }
+
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    onProgress?.(percent);
+                } else {
+                    onProgress?.(0);
+                }
+            };
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    onProgress?.(100);
+                    resolve();
+                } else {
+                    reject(new Error(`Upload failed with status ${xhr.status}`));
+                }
+            };
+            xhr.onerror = () => reject(new Error("Network error during upload"));
+
+            xhr.send(file);
         });
 
         return { success: true, message: "File uploaded successfully" };
@@ -73,7 +104,9 @@ export async function uploadFile(
 
 export async function getFiles(
     context: ComponentFramework.Context<IInputs>,
-    relationshipMetadata: RelationshipMetadata | null
+    relationshipMetadata: RelationshipMetadata | null,
+    fileSizeFieldLogicalName?: string,
+    fileNameFieldLogicalName?: string
   ): Promise<ComponentFramework.WebApi.RetrieveMultipleResponse | { success: false; message: string }> {
     if (!relationshipMetadata) {
       return { success: false, message: "Relationship metadata not found. Double check PCF parameters." };
@@ -85,7 +118,9 @@ export async function getFiles(
       const lookupAttr = relationshipMetadata.ReferencingAttribute;         // e.g. gk_tender
       const lookupFilterAttr = `_${lookupAttr}_value`;
   
-      const select = ["gk_name", "createdon", "gk_tenderdocumentid"];
+      const select = [fileNameFieldLogicalName || "gk_name", "createdon", "gk_tenderdocumentid"].concat(
+        fileSizeFieldLogicalName ? [fileSizeFieldLogicalName] : []
+      );
       const query =
         `?$select=${select.join(",")}` +
         `&$filter=${lookupFilterAttr} eq ${entityId}` +

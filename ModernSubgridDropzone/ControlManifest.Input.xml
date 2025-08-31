@@ -3,6 +3,10 @@
   <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.32" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
     <external-service-usage enabled="false" />
     <data-set name="LeaveEmpty" display-name-key="Leave Empty" />
+    <property name="RelationshipName" display-name-key="Relationship Name" description-key="Schema name of the 1:N relationship" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="FileFieldLogicalName" display-name-key="File Field Logical Name" description-key="Logical name of the file column on the child entity" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="FileSizeFieldLogicalName" display-name-key="File Size Field Logical Name" description-key="Logical name of the text column storing file size in bytes" of-type="SingleLine.Text" usage="input" required="false" />
+    <property name="FileNameFieldLogicalName" display-name-key="File Name Field Logical Name" description-key="Logical name of the text column storing the file name" of-type="SingleLine.Text" usage="input" required="false" />
     <resources>
       <code path="index.ts" order="1" />
       <platform-library name="React" version="16.14.0" />

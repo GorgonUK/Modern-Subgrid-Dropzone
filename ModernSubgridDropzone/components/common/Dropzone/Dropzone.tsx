@@ -1,15 +1,24 @@
 import * as React from 'react';
-import { FileIcon, Trash2Icon, UploadIcon } from 'lucide-react';
+import { FileIcon, Trash2Icon, CloudUploadIcon, UploadIcon, ArrowUpDown, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { DropEvent, DropzoneOptions, FileRejection } from 'react-dropzone';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '../shadcn/ui/button';
 import { cn } from '../shadcn/lib/utils';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../shadcn/ui/table";
+import { Checkbox } from "../shadcn/ui/checkbox";
+import { Input } from "../shadcn/ui/input";
 import {
-  getFileTypeIconProps,
-} from "@uifabric/file-type-icons";
-import { getFileExtension } from './utils';
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 type DropzoneContextType = {
   src?: File[];
@@ -84,12 +93,14 @@ export const Dropzone = ({
     disabled,
     onDrop: (acceptedFiles, fileRejections, event) => {
       if (fileRejections.length > 0) {
-        const message = fileRejections.at(0)?.errors.at(0)?.message;
-        onError?.(new Error(message));
-        return;
+        const firstMessage = fileRejections.at(0)?.errors.at(0)?.message;
+        if (firstMessage) onError?.(new Error(firstMessage));
+        // Do not return; proceed with accepted files
       }
 
-      onDrop?.(acceptedFiles, fileRejections, event);
+      if (acceptedFiles.length > 0) {
+        onDrop?.(acceptedFiles, fileRejections, event);
+      }
     },
     ...props,
   });
@@ -149,13 +160,14 @@ export const DropzoneContent = ({
   }
 
   return (
-    <div className={cn('flex flex-col items-center justify-center', className)}>
-      <div className="flex size-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
-        <UploadIcon size={16} />
+    <div className={cn('flex flex-col items-center justify-center hover:bg-[#F7F7F7] p-8', className)}>
+      <CloudUploadIcon className="size-8" />
+      <div>
+        <p className="font-semibold">Upload files</p>
+        <p className="text-sm text-muted-foreground">
+          Click here or drag and drop to upload
+        </p>
       </div>
-      <p className="w-full text-wrap text-muted-foreground text-xs">
-        Click here or drag and drop to upload
-      </p>
     </div>
   );
 };
@@ -196,7 +208,7 @@ export const DropzoneEmptyState = ({
       <div className="flex size-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
         <UploadIcon size={16} />
       </div>
-      <p className="my-2 w-full truncate text-wrap font-medium text-sm">
+      <p className="my-2 w-full truncate text-wrap font-medium">
         Upload {maxFiles === 1 ? 'a file' : 'files'}
       </p>
       <p className="w-full truncate text-wrap text-muted-foreground text-xs">
@@ -209,48 +221,200 @@ export const DropzoneEmptyState = ({
   );
 };
 
+type FileRow = {
+  index: number;
+  name: string;
+  size: number;
+  fileId?: string;
+  createdon?: any;
+  progress?: number;
+}
+
 export function DropzoneFileList({
   files,
   onRemove,
   className,
+  progressMap,
+  deletingIds,
 }: {
   files: File[];
-  onRemove: (index: number) => void;
+  onRemove: (index: number) => void | Promise<void>;
   className?: string;
+  progressMap?: Record<string, number>;
+  deletingIds?: Record<string, boolean>;
 }) {
   if (!files?.length) return null;
+
+  const data: FileRow[] = files.map((file, idx) => ({
+    index: idx,
+    name: file.name,
+    size: file.size,
+    fileId: (file as any).fileId,
+    createdon: (file as any).createdon,
+    progress: progressMap?.[(file as any).__uploadKey || file.name],
+  }));
+
+  const columns: ColumnDef<FileRow>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? "indeterminate" : false}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 40,
+      
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="!p-0">Name <ArrowUpDown className="ml-1 h-4 w-4" /></Button>
+      ),
+      cell: ({ row }) => {
+        const deleting = !!row.original.fileId && !!deletingIds?.[row.original.fileId];
+        return (
+          <div className={cn("flex items-center gap-2", deleting && "msd-deleting")}>{row.original.name}</div>
+        );
+      },
+    },
+    {
+      accessorKey: "size",
+      header: ({ column }) => (
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="!p-0">
+          Size <ArrowUpDown className="ml-1 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <span>{`${(row.original.size / (1024 * 1024)).toFixed(2)} MB`}</span>,
+    },
+    {
+      id: "actions",
+      header: () => <span >Actions</span>,
+      cell: ({ row }) => {
+        const deleting = !!row.original.fileId && !!deletingIds?.[row.original.fileId];
+        return (
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label={`Remove ${row.original.name}`}
+            onClick={() => onRemove(row.original.index)}
+            disabled={deleting}
+          >
+            <Trash2Icon className="h-4 w-4" />
+          </Button>
+        )
+      },
+      enableSorting: false,
+    },
+  ];
+
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      rowSelection,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  });
+
+  const deleteSelected = async () => {
+    const selected = table.getSelectedRowModel().rows.map(r => r.original.index);
+    if (!selected.length) return;
+    // delete from highest index to lowest to avoid reindexing issues
+    const sorted = [...selected].sort((a, b) => b - a);
+    for (const idx of sorted) {
+      await Promise.resolve(onRemove(idx));
+    }
+  };
+
   return (
-    <ul className={cn("mt-3 flex flex-col gap-2", className)}>
-      {files.map((file, idx) => (
-        <li key={`${file.name}-${idx}`} className="justify-center rounded-md bg-muted/40 px-4 py-2 flex flex-col gap-3">
-          <div className="flex justify-between">
-            <div className="flex min-w-0 items-center gap-2 font-bold">
-              
-              <p className="truncate text-sm font-bold">{file.name}</p>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                aria-label={`Remove ${file.name}`}
-                onClick={() => onRemove(idx)}
-              >
-                <Trash2Icon className="h-4 w-4" />
-              </Button>
-            </div>
+    <div className={cn("mt-3 flex flex-col gap-2", className)}>
+      <div className="flex items-center py-2 px-2 min-w-max justify-between">
+        <Input
+          placeholder="Filter by name..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(e) => table.getColumn("name")?.setFilterValue(e.target.value)}
+          className="px-2 max-w-[200px]"
+        />
+        {table.getSelectedRowModel().rows.length > 0 && (
+  <div className="ml-auto space-x-2">
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={deleteSelected}
+    >
+      <Trash2Icon className="h-4 w-4" />
+      Delete
+    </Button>
+  </div>
+)}
 
-
-          </div>
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <p className="text-xs text-muted-foreground">
-              {`${(file.size / (1024 * 1024)).toFixed(2)} MB`}
-            </p>
-          </div>
-
-        </li>
-      ))
-      }
-    </ul >
+      </div>
+      <div className="overflow-hidden rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => {
+                const p = row.original.progress;
+                const deleting = !!row.original.fileId && !!deletingIds?.[row.original.fileId];
+                const uploadingClass = p !== undefined ? (p === 0 ? "msd-uploading-indeterminate" : "msd-uploading") : undefined;
+                const styleProp = p !== undefined && p !== 0 ? ({ ["--msd-progress" as any]: `${p}%` } as React.CSSProperties) : undefined;
+                return (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className={cn(uploadingClass, deleting && "msd-deleting")} style={styleProp}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  ))}
+                </TableRow>
+                )
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 py-2">
+        <div className="text-muted-foreground flex-1 text-sm">
+          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+      </div>
+    </div>
   );
 }
