@@ -6,6 +6,8 @@ import { getDocumentRelationship, getStringParameter, getNumberParameter, readFi
 import { RelationshipMetadata } from "../common/types/relationship";
 import { FileStub } from "../common/types/fileStub";
 
+declare const Xrm: any;
+
 interface LandingProps {
   context: ComponentFramework.Context<IInputs>;
   notifyOutputChanged: () => void;
@@ -58,8 +60,11 @@ export class Landing extends React.Component<LandingProps, LandingState> {
     const fileFieldLogicalName = getStringParameter(context, "fileFieldLogicalName");
     const fileSizeFieldLogicalName = getStringParameter(context, "fileSizeFieldLogicalName");
     const fileNameFieldLogicalName = getStringParameter(context, "fileNameFieldLogicalName");
-    // Optimistically add new files to the list while uploading
+    
+    // Check if this is the first file upload
     const existing = this.state.files || [];
+    
+    // Optimistically add new files to the list while uploading
     this.setState({ files: [...existing, ...acceptedFiles] });
     const progress: Record<string, number> = { ...(this.state.uploadProgress || {}) };
     for (let i = 0; i < acceptedFiles.length; i++) {
@@ -76,6 +81,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
       this.setState({ uploadProgress: { ...progress } });
     }
     await this.fetchFiles();
+    Xrm.Page.ui.refreshRibbon(true);
   };
 
   fetchFiles = async () => {

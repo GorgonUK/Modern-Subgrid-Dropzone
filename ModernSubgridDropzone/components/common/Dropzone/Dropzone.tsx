@@ -103,7 +103,7 @@ export const Dropzone = ({
     >
       <Button
         className={cn(
-          'relative h-auto w-full flex-col overflow-hidden p-8',
+          'relative h-auto w-full flex-col overflow-hidden',
           isDragActive && 'outline-none ring-1 ring-ring',
           className
         )}
@@ -151,7 +151,7 @@ export const DropzoneContent = ({
   }
 
   return (
-    <div className={cn('flex flex-col items-center justify-center hover:bg-[#F7F7F7] p-8', className)}>
+    <div className={cn('flex flex-col items-center justify-center hover:bg-[#F7F7F7] p-4 w-full', className)}>
       <CloudUploadIcon className="size-8" />
       <div>
         <p className="font-semibold">Upload files</p>
@@ -265,7 +265,7 @@ export function DropzoneFileList({
       enableSorting: false,
       enableHiding: false,
       size: 40,
-      
+
     },
     {
       accessorKey: "name",
@@ -341,26 +341,27 @@ export function DropzoneFileList({
   };
 
   return (
-    <div className={cn("mt-3 flex flex-col gap-2", className)}>
-      <div className="flex items-center py-2 px-0 min-w-max justify-between">
-        <Input
+    <div className={cn("flex flex-col gap-2", className)}>
+      <div className="flex items-center px-0 min-w-max justify-between">
+        {/* Filter input */}
+        {/* <Input
           placeholder="Filter by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(e) => table.getColumn("name")?.setFilterValue(e.target.value)}
           className="px-2 max-w-[200px]"
-        />
+        /> */}
         {table.getSelectedRowModel().rows.length > 0 && (
-  <div className="ml-auto space-x-2">
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={deleteSelected}
-    >
-      <Trash2Icon className="h-4 w-4" />
-      Delete
-    </Button>
-  </div>
-)}
+          <div className="ml-auto space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={deleteSelected}
+            >
+              <Trash2Icon className="h-4 w-4" />
+              Delete
+            </Button>
+          </div>
+        )}
 
       </div>
       <div className="overflow-hidden rounded-md border">
@@ -385,10 +386,10 @@ export function DropzoneFileList({
                 const styleProp = p !== undefined && p !== 0 ? ({ ["--msd-progress" as any]: `${p}%` } as React.CSSProperties) : undefined;
                 return (
                   <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className={cn(uploadingClass, deleting && "msd-deleting")} style={styleProp}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    ))}
+                  </TableRow>
                 )
               })
             ) : (
