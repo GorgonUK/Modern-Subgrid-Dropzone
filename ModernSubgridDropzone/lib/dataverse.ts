@@ -29,7 +29,7 @@ export async function createRelatedFile(
   const entityId = (context as any).page.entityId;
 
   const record: Record<string, any> = {
-    [`${relationshipMetadata.ReferencingEntityNavigationPropertyName}@odata.bind`]: `/${relationshipMetadata.ReferencedEntity}s(${entityId})`
+    [`${relationshipMetadata.ReferencingEntityNavigationPropertyName}@odata.bind`]: `/${relationshipMetadata.ReferencingEntityPlural}(${entityId})`
   };
   if (fileNameFieldLogicalName) {
     record[fileNameFieldLogicalName] = file.name;

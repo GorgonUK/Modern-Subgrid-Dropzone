@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manifest>
-  <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.53" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
+  <control namespace="GorgonUK" constructor="ModernSubgridDropzone" version="0.0.55" display-name-key="Modern Subgrid Dropzone" description-key="Allows uploading files to a related table that has a file field" control-type="virtual">
     <data-set name="LeaveEmpty" display-name-key="Leave Empty" />
     <property name="relationshipSchemaName" display-name-key="Relationship Name" description-key="Schema name of the 1:N relationship" of-type="SingleLine.Text" usage="input" required="false" />
     <property name="fileFieldLogicalName" display-name-key="File Field Logical Name" description-key="Logical name of the file column on the child entity" of-type="SingleLine.Text" usage="input" required="false" />

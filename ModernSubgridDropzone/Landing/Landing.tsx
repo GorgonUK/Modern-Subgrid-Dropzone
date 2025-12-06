@@ -45,6 +45,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
       ...baseEntityMetadata,
       ReferencingEntityPlural: entitySetName
     } as RelationshipMetadata;
+    console.log("updatedMetadata", updatedMetadata);
     this.setState({ relationshipMetadata: updatedMetadata });
     await this.fetchFiles();
   }
@@ -103,7 +104,6 @@ export class Landing extends React.Component<LandingProps, LandingState> {
     }
   };
 
-
   render() {
     return (
       <div className="w-full h-full">
@@ -124,7 +124,6 @@ export class Landing extends React.Component<LandingProps, LandingState> {
         >
           <DropzoneEmptyState />
           <DropzoneContent />
-
         </Dropzone>
         <DropzoneFileList
           files={(this.state.files || []) as FileStub[]}
